@@ -7,4 +7,4 @@ else:
     exit('Переменные окружения не загружены: файл .env отсутствует')
 
 BOT_TOKEN: str = os.getenv('BOT_TOKEN')
-API_KEY: str = os.getenv('API_KEY')
+NASA_API: str = os.getenv('NASA_API')

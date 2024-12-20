@@ -1,62 +1,38 @@
 import asyncio
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 
-from config_data.bot_config import BOT_TOKEN
-from weather import CityWeather
-
-bot: Bot = Bot(token=BOT_TOKEN)
-dp = Dispatcher()
+from loader import bot, dp, logger
+from keyboards import section_keys
 
 
-async def set_commands(robot: Bot) -> None:
-    commands = [
-        types.BotCommand(command='/start', description='Запустить бота'),
-        types.BotCommand(command='/help', description='Помощь'),
-        types.BotCommand(command='/weather', description='Погода в Екатеринбурге'),
-    ]
-    await robot.set_my_commands(commands)
+@dp.callback_query(F.data == 'dog_breed')
+async def dog_breed(message: Message):
+    await message.answer('Выберите породу собаки')
 
 
-@dp.message(Command('weather'))
-async def weather(message: Message):
-    climate = CityWeather('Yekaterinburg,RU').get_weather()
-
-    if climate['desc'] != 'Данные о погоде не найдены':
-        await message.answer(f'Сегодня: {climate["date"]}\n'
-                             f'В городе: {climate["name"]}\n'
-                             f'Погодные условия: {climate["desc"]}\n'
-                             f'Температура воздуха: {climate["temp"]} °С\n'
-                             f'Ощущается как: {climate["feel"]} °С\n'
-                             f'Скорость ветра: {climate["wind"]} м/с\n'
-                             f'Относительная влажность: {climate["humid"]} %\n'
-                             f'Давление: {climate["press"]} мм. ртутного столба\n'
-                             f'Видимость: {climate["visi"]} км')
-    else:
-        await message.answer(f'Сегодня: {climate["date"]}\n'
-                             f'{climate['desc']}')
-
-
-@dp.message(Command('help'))
-async def bot_help(message: Message):
-    await message.answer('Этот бот умеет выполнять команды:\n/start - приветствие\n/help - помощь\n/weather - погода в Екатеринбурге')
+@dp.callback_query(F.data == 'space_photo')
+async def space_photo(message: Message):
+    https://api.nasa.gov/planetary/apod?NASA_API = DEMO_KEY
+    await message.answer('Фото из Космоса', reply_markup=section_keys)
 
 
 @dp.message(CommandStart())
 async def start(message: Message):
     await message.answer('Привет! Я бот!')
+    await message.answer('Выберите интересующий Вас раздел', reply_markup=section_keys)
 
 
+@logger.catch
 async def main():
-    await set_commands(bot)
-    print('Бот запущен')
+    logger.info('Бот запущен')
     await dp.start_polling(bot)
 
 
 async def stop_bot() -> None:
     await bot.session.close()
-    print('Бот остановлен')
+    logger.info('Бот остановлен')
 
 
 if __name__ == '__main__':
