@@ -1,21 +1,26 @@
 import asyncio
-from aiogram import Bot, Dispatcher, F
-from aiogram.filters import CommandStart, Command
+from aiogram import F
+from aiogram.filters import CommandStart
 from aiogram.types import Message
 
 from loader import bot, dp, logger
 from keyboards import section_keys
+from third_party import SpacePhoto, DogBreed
 
 
 @dp.callback_query(F.data == 'dog_breed')
 async def dog_breed(message: Message):
-    await message.answer('Выберите породу собаки')
+    await message.answer('Ожидаю ввода данных...')
+    await bot.send_message(chat_id=message.from_user.id, text='Введите название породы собаки')
+    bred = DogBreed().breed_pool()
+    # await bot.send_message(chat_id=message.from_user.id, text=bred)
 
 
 @dp.callback_query(F.data == 'space_photo')
 async def space_photo(message: Message):
-    https://api.nasa.gov/planetary/apod?NASA_API = DEMO_KEY
-    await message.answer('Фото из Космоса', reply_markup=section_keys)
+    await message.answer('Получаю данные...')
+    nasa_photo, nasa_title = SpacePhoto().get_photo()
+    await bot.send_photo(chat_id=message.from_user.id, photo=nasa_photo, caption=nasa_title)
 
 
 @dp.message(CommandStart())

@@ -8,3 +8,4 @@ else:
 
 BOT_TOKEN: str = os.getenv('BOT_TOKEN')
 NASA_API: str = os.getenv('NASA_API')
+DOG_API: str = os.getenv('DOG_API')
